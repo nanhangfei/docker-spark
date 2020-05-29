@@ -14,22 +14,29 @@ COPY finish-step.sh /
 
 #COPY bde-spark.css /css/org/apache/spark/ui/static/timeline-view.css
 
-ADD https://raw.githubusercontent.com/guilhem/apt-get-install/master/apt-get-install /usr/bin/
+# ADD https://raw.githubusercontent.com/guilhem/apt-get-install/master/apt-get-install /usr/bin/
+COPY apt-get-install /usr/bin/
 RUN chmod +x /usr/bin/apt-get-install
 
-RUN apt-get-install -y curl wget \
-      && chmod +x *.sh \
-      && wget http://apache.mirror.iphh.net/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-without-hadoop.tgz \
-      && tar -xvzf spark-${SPARK_VERSION}-bin-without-hadoop.tgz \
+# RUN wget https://mirrors.huaweicloud.com/apache/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-without-hadoop.tgz \
+#       && tar -xvzf spark-${SPARK_VERSION}-bin-without-hadoop.tgz \
+#       && mv spark-${SPARK_VERSION}-bin-without-hadoop spark \
+#       && rm spark-${SPARK_VERSION}-bin-without-hadoop.tgz \
+#       #&& cd /css \
+#       #&& jar uf /spark/jars/spark-core_2.11-${SPARK_VERSION}.jar org/apache/spark/ui/static/timeline-view.css \
+#       && cd /
+COPY spark-2.4.0-bin-without-hadoop.tar.gz spark-2.4.0-bin-without-hadoop.tar.gz
+RUN tar -xvf spark-${SPARK_VERSION}-bin-without-hadoop.tar.gz \
       && mv spark-${SPARK_VERSION}-bin-without-hadoop spark \
-      && rm spark-${SPARK_VERSION}-bin-without-hadoop.tgz \
+      && rm spark-${SPARK_VERSION}-bin-without-hadoop.tar.gz \
       #&& cd /css \
       #&& jar uf /spark/jars/spark-core_2.11-${SPARK_VERSION}.jar org/apache/spark/ui/static/timeline-view.css \
       && cd /
 
 ENV SPARK_HOME /spark/
 
-RUN apt-get-install -y python3 python3-setuptools python3-pip
+# RUN apt-get-install -y python3 python3-setuptools python3-pip
+RUN apt-get-install vim
 
 #Give permission to execute scripts
 RUN chmod +x /wait-for-step.sh && chmod +x /execute-step.sh && chmod +x /finish-step.sh
@@ -40,6 +47,7 @@ ENV PYTHONHASHSEED 1
 
 COPY hive-site.xml /spark/conf/
 COPY spark-env.sh /spark/conf/
+COPY spark-defaults.conf /spark/conf/
 
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
